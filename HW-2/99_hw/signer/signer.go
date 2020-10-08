@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -110,10 +111,7 @@ func MultiHash(in, out chan interface{}) {
 			for _, val := range odSlice {
 				strSlice[val.order] = val.data
 			}
-			result := ""
-			for _, val := range strSlice {
-				result += val
-			}
+			result := strings.Join(strSlice, "")
 			out <- result
 		}()
 	}
@@ -126,12 +124,6 @@ func CombineResults(in, out chan interface{}) {
 		resultSlice = append(resultSlice, val.(string))
 	}
 	sort.Strings(resultSlice)
-	result := ""
-	for idx, val := range resultSlice {
-		result += val
-		if idx != len(resultSlice)-1 {
-			result += "_"
-		}
-	}
+	result := strings.Join(resultSlice, "_")
 	out <- result
 }
