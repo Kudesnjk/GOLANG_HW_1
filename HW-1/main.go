@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -22,79 +23,55 @@ type options struct {
 }
 
 func main() {
-	cmdArgs := getCmdArgs()
-	option, err := argsToOptions(cmdArgs)
+	option, err := InitFlags()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	data, err := readFromInput(option)
+	data, err := readFromInput(&option)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	result := checkUniqString(data, option)
-	err = writeIntoOutput(option, result)
+	result := checkUniqString(data, &option)
+	err = writeIntoOutput(&option, result)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 }
 
-func argsToOptions(cmdArgs []string) (*options, error) {
-	o := &options{}
-	isDigit := func(s string) bool {
-		_, err := strconv.Atoi(s)
-		return err == nil
+func InitFlags() (options, error) {
+	flagCPtr := flag.Bool("c", false, "for number of occurrences of lines in the input")
+	flagDPtr := flag.Bool("d", false, "print only those lines that were repeated in the input data")
+	flagUPtr := flag.Bool("u", false, "print only those lines that have not been repeated in the input data")
+
+	flagIPtr := flag.Bool("i", false, "case-insensitive")
+	flagFPtr := flag.Int("f", 0, "ignore the first num_fields fields in the line")
+	flagSPtr := flag.Int("s", 0, "ignore the first num_chars characters in the string")
+
+	flag.Parse()
+
+	opt := options{
+		PrintEntriesCount: *flagCPtr,
+		PrintRepeated:     *flagDPtr,
+		PrintUnRepeated:   *flagUPtr,
+		SkipNumFields:     *flagFPtr,
+		SkipNumChars:      *flagSPtr,
+		WithoutRegister:   *flagIPtr,
+	}
+	if !opt.PrintEntriesCount && opt.PrintRepeated && opt.PrintUnRepeated ||
+		opt.PrintEntriesCount && !opt.PrintRepeated && opt.PrintUnRepeated ||
+		opt.PrintEntriesCount && opt.PrintRepeated && !opt.PrintUnRepeated {
+		return opt, errors.New("invalid arguments passed")
 	}
 
-	isFile := func(s string) bool {
-		return !strings.HasPrefix(s, "-")
+	if !opt.PrintEntriesCount && !opt.PrintUnRepeated && !opt.PrintRepeated {
+		opt.PrintUnRepeated = true
+		opt.PrintRepeated = true
 	}
 
-	for idx, val := range cmdArgs {
-		notLast := idx+1 < len(cmdArgs)
-		var err error
-		switch val {
-		case "-c":
-			o.PrintEntriesCount = true
-		case "-d":
-			o.PrintRepeated = true
-		case "-u":
-			o.PrintUnRepeated = true
-		case "-i":
-			o.WithoutRegister = true
-		case "-f":
-			if notLast {
-				o.SkipNumFields, err = strconv.Atoi(cmdArgs[idx+1])
-				if err != nil || o.SkipNumFields <= 0 {
-					return nil, errors.New("Use -f flag with num_fields > 0")
-				}
-			}
-		case "-s":
-			if notLast {
-				o.SkipNumChars, err = strconv.Atoi(cmdArgs[idx+1])
-				if err != nil || o.SkipNumChars <= 0 {
-					return nil, errors.New("Use -s flag with num_chars > 0")
-				}
-			}
-		}
-		if isFile(val) && !isDigit(val) {
-			if o.inputFileName == "" {
-				o.inputFileName = val
-			} else if o.inputFileName != "" {
-				o.outputFileName = val
-			}
-		}
-	}
-	if (o.PrintEntriesCount && o.PrintRepeated) || (o.PrintRepeated && o.PrintUnRepeated) || (o.PrintEntriesCount && o.PrintUnRepeated) {
-		return nil, errors.New(`Use -c | -d | -u flags apart due to it's meaning
-		-c - count number of repeats of a string in the input
-		-d - print only those lines that were repeated in the input
-		-u - print only those lines that were not repeated in the input data
-		`)
-	}
-	return o, nil
+	return opt, nil
 }
 
 func readFromInput(option *options) ([]string, error) {
@@ -138,10 +115,6 @@ func readFromStream(inStream io.Reader) ([]string, error) {
 		data = append(data, scanner.Text())
 	}
 	return data, nil
-}
-
-func getCmdArgs() []string {
-	return os.Args[1:]
 }
 
 func checkUniqString(data []string, opt *options) []string {
