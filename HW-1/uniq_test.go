@@ -46,7 +46,7 @@ func TestDefaultBehaivourFail(t *testing.T) {
 	}
 }
 
-func TestCFlagBehaivourSuccess(t *testing.T) {
+func TestPrintEntriesCountBehaivourSuccess(t *testing.T) {
 	data := []string{
 		"I love music.",
 		"I love music.",
@@ -56,7 +56,7 @@ func TestCFlagBehaivourSuccess(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.cFlag = true
+	option.PrintEntriesCount = true
 	expected := []string{
 		"3 I love music.",
 		"2 I love music of Kartik.",
@@ -64,11 +64,11 @@ func TestCFlagBehaivourSuccess(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if !reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check CFlag behaviour failed")
+		t.Fatalf("Check PrintEntriesCount behaviour failed")
 	}
 }
 
-func TestCFlagBehaivourFail(t *testing.T) {
+func TestPrintEntriesCountBehaivourFail(t *testing.T) {
 	data := []string{
 		"I love music.",
 		"I love music.",
@@ -77,7 +77,7 @@ func TestCFlagBehaivourFail(t *testing.T) {
 		"I love music of Kartik.",
 	}
 	var option options
-	option.cFlag = true
+	option.PrintEntriesCount = true
 	expected := []string{
 		"3 I love music.",
 		"2 I love music of Kartik.",
@@ -85,11 +85,11 @@ func TestCFlagBehaivourFail(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check CFlag behaviour not failed")
+		t.Fatalf("Check PrintEntriesCount behaviour not failed")
 	}
 }
 
-func TestDFlagBehaivourSuccess(t *testing.T) {
+func TestPrintRepeatedBehaivourSuccess(t *testing.T) {
 	data := []string{
 		"I love music.",
 		"I love music.",
@@ -99,18 +99,18 @@ func TestDFlagBehaivourSuccess(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.dFlag = true
+	option.PrintRepeated = true
 	expected := []string{
 		"I love music.",
 		"I love music of Kartik.",
 	}
 	result := checkUniqString(data, &option)
 	if !reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check DFlag behaviour failed")
+		t.Fatalf("Check PrintRepeated behaviour failed")
 	}
 }
 
-func TestDFlagBehaivourFail(t *testing.T) {
+func TestPrintRepeatedBehaivourFail(t *testing.T) {
 	data := []string{
 		"I love music.",
 		"I love music.",
@@ -120,7 +120,7 @@ func TestDFlagBehaivourFail(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.dFlag = true
+	option.PrintRepeated = true
 	expected := []string{
 		"I love music.",
 		"I love music of Kartik.",
@@ -128,11 +128,11 @@ func TestDFlagBehaivourFail(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check DFlag behaviour not failed")
+		t.Fatalf("Check PrintRepeated behaviour not failed")
 	}
 }
 
-func TestUFlagBehaivourSuccess(t *testing.T) {
+func TestPrintUnRepeatedBehaivourSuccess(t *testing.T) {
 	data := []string{
 		"I love music.",
 		"I love music.",
@@ -142,17 +142,17 @@ func TestUFlagBehaivourSuccess(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.uFlag = true
+	option.PrintUnRepeated = true
 	expected := []string{
 		"Thanks.",
 	}
 	result := checkUniqString(data, &option)
 	if !reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check UFlag behaviour failed")
+		t.Fatalf("Check PrintUnRepeated behaviour failed")
 	}
 }
 
-func TestUFlagBehaivourFail(t *testing.T) {
+func TestPrintUnRepeatedBehaivourFail(t *testing.T) {
 	data := []string{
 		"I love music.",
 		"I love music.",
@@ -162,18 +162,18 @@ func TestUFlagBehaivourFail(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.uFlag = true
+	option.PrintUnRepeated = true
 	expected := []string{
 		"I love music of Kartik.",
 		"Thanks.",
 	}
 	result := checkUniqString(data, &option)
 	if reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check UFlag behaviour not failed")
+		t.Fatalf("Check PrintUnRepeated behaviour not failed")
 	}
 }
 
-func TestIFlagBehaivourSuccess(t *testing.T) {
+func TestWithoutRegisterBehaivourSuccess(t *testing.T) {
 	data := []string{
 		"I LOVE MUSIC.",
 		"I love music.",
@@ -183,7 +183,7 @@ func TestIFlagBehaivourSuccess(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.iFlag = true
+	option.WithoutRegister = true
 	expected := []string{
 		"I LOVE MUSIC.",
 		"I love MuSIC of Kartik.",
@@ -191,11 +191,11 @@ func TestIFlagBehaivourSuccess(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if !reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check iFlag behaviour failed")
+		t.Fatalf("Check WithoutRegister behaviour failed")
 	}
 }
 
-func TestIFlagBehaivourFail(t *testing.T) {
+func TestWithoutRegisterBehaivourFail(t *testing.T) {
 	data := []string{
 		"I LOVE MUSIC.",
 		"I love music.",
@@ -205,7 +205,7 @@ func TestIFlagBehaivourFail(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.iFlag = true
+	option.WithoutRegister = true
 	expected := []string{
 		"I LOVE MUSIC.",
 		"I love music.",
@@ -214,11 +214,11 @@ func TestIFlagBehaivourFail(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check iFlag behaviour not failed")
+		t.Fatalf("Check WithoutRegister behaviour not failed")
 	}
 }
 
-func TestFFlagBehaivourSuccess(t *testing.T) {
+func TestSkipNumFieldsBehaivourSuccess(t *testing.T) {
 	data := []string{
 		"We love music.",
 		"I love music.",
@@ -228,7 +228,7 @@ func TestFFlagBehaivourSuccess(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.fFlag = 1
+	option.SkipNumFields = 1
 	expected := []string{
 		"We love music.",
 		"I love music of Kartik.",
@@ -236,11 +236,11 @@ func TestFFlagBehaivourSuccess(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if !reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check fFlag behaviour failed")
+		t.Fatalf("Check SkipNumFields behaviour failed")
 	}
 }
 
-func TestFFlagBehaivourFail(t *testing.T) {
+func TestSkipNumFieldsBehaivourFail(t *testing.T) {
 	data := []string{
 		"We love music.",
 		"I love music.",
@@ -250,7 +250,7 @@ func TestFFlagBehaivourFail(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.fFlag = 1
+	option.SkipNumFields = 1
 	expected := []string{
 		"I love music.",
 		"We love music.",
@@ -259,11 +259,11 @@ func TestFFlagBehaivourFail(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check fFlag behaviour not failed")
+		t.Fatalf("Check SkipNumFields behaviour not failed")
 	}
 }
 
-func TestSFlagBehaivourSuccess(t *testing.T) {
+func TestSkipNumCharsBehaivourSuccess(t *testing.T) {
 	data := []string{
 		"A love music.",
 		"I love music.",
@@ -273,7 +273,7 @@ func TestSFlagBehaivourSuccess(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.sFlag = 1
+	option.SkipNumChars = 1
 	expected := []string{
 		"A love music.",
 		"I love music of Kartik.",
@@ -282,11 +282,11 @@ func TestSFlagBehaivourSuccess(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if !reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check sFlag behaviour failed")
+		t.Fatalf("Check SkipNumChars behaviour failed")
 	}
 }
 
-func TestSFlagBehaivourFail(t *testing.T) {
+func TestSkipNumCharsBehaivourFail(t *testing.T) {
 	data := []string{
 		"A love music.",
 		"I love music.",
@@ -296,7 +296,7 @@ func TestSFlagBehaivourFail(t *testing.T) {
 		"Thanks.",
 	}
 	var option options
-	option.sFlag = 1
+	option.SkipNumChars = 1
 	expected := []string{
 		"A love music.",
 		"I love music.",
@@ -306,7 +306,7 @@ func TestSFlagBehaivourFail(t *testing.T) {
 	}
 	result := checkUniqString(data, &option)
 	if reflect.DeepEqual(expected, result) {
-		t.Fatalf("Check sFlag behaviour not failed")
+		t.Fatalf("Check SkipNumChars behaviour not failed")
 	}
 }
 
@@ -340,9 +340,9 @@ func TestArgsToOptionSuccess(t *testing.T) {
 		"-i",
 	}
 	expected := options{
-		cFlag: true,
-		fFlag: 1,
-		iFlag: true,
+		PrintEntriesCount: true,
+		SkipNumFields:     1,
+		WithoutRegister:   true,
 	}
 	result, err := argsToOptions(args)
 	if err != nil && reflect.DeepEqual(expected, result) {
@@ -358,9 +358,9 @@ func TestArgsToOptionFail(t *testing.T) {
 		"1",
 	}
 	expected := options{
-		cFlag: true,
-		fFlag: 1,
-		iFlag: true,
+		PrintEntriesCount: true,
+		SkipNumFields:     1,
+		WithoutRegister:   true,
 	}
 	result, err := argsToOptions(args)
 	if err == nil || reflect.DeepEqual(expected, result) {

@@ -11,14 +11,14 @@ import (
 )
 
 type options struct {
-	cFlag    bool
-	dFlag    bool
-	uFlag    bool
-	iFlag    bool
-	fFlag    int
-	sFlag    int
-	inputFN  string
-	outputFN string
+	PrintEntriesCount bool
+	PrintRepeated     bool
+	PrintUnRepeated   bool
+	WithoutRegister   bool
+	SkipNumFields     int
+	SkipNumChars      int
+	inputFileName     string
+	outputFileName    string
 }
 
 func main() {
@@ -57,37 +57,37 @@ func argsToOptions(cmdArgs []string) (*options, error) {
 		var err error
 		switch val {
 		case "-c":
-			o.cFlag = true
+			o.PrintEntriesCount = true
 		case "-d":
-			o.dFlag = true
+			o.PrintRepeated = true
 		case "-u":
-			o.uFlag = true
+			o.PrintUnRepeated = true
 		case "-i":
-			o.iFlag = true
+			o.WithoutRegister = true
 		case "-f":
 			if notLast {
-				o.fFlag, err = strconv.Atoi(cmdArgs[idx+1])
-				if err != nil || o.fFlag <= 0 {
+				o.SkipNumFields, err = strconv.Atoi(cmdArgs[idx+1])
+				if err != nil || o.SkipNumFields <= 0 {
 					return nil, errors.New("Use -f flag with num_fields > 0")
 				}
 			}
 		case "-s":
 			if notLast {
-				o.sFlag, err = strconv.Atoi(cmdArgs[idx+1])
-				if err != nil || o.sFlag <= 0 {
+				o.SkipNumChars, err = strconv.Atoi(cmdArgs[idx+1])
+				if err != nil || o.SkipNumChars <= 0 {
 					return nil, errors.New("Use -s flag with num_chars > 0")
 				}
 			}
 		}
 		if isFile(val) && !isDigit(val) {
-			if o.inputFN == "" {
-				o.inputFN = val
-			} else if o.inputFN != "" {
-				o.outputFN = val
+			if o.inputFileName == "" {
+				o.inputFileName = val
+			} else if o.inputFileName != "" {
+				o.outputFileName = val
 			}
 		}
 	}
-	if (o.cFlag && o.dFlag) || (o.dFlag && o.uFlag) || (o.cFlag && o.uFlag) {
+	if (o.PrintEntriesCount && o.PrintRepeated) || (o.PrintRepeated && o.PrintUnRepeated) || (o.PrintEntriesCount && o.PrintUnRepeated) {
 		return nil, errors.New(`Use -c | -d | -u flags apart due to it's meaning
 		-c - count number of repeats of a string in the input
 		-d - print only those lines that were repeated in the input
@@ -98,8 +98,8 @@ func argsToOptions(cmdArgs []string) (*options, error) {
 }
 
 func readFromInput(option *options) ([]string, error) {
-	if option.inputFN != "" {
-		inStream, err := os.OpenFile(option.inputFN, os.O_RDONLY, 0755)
+	if option.inputFileName != "" {
+		inStream, err := os.OpenFile(option.inputFileName, os.O_RDONLY, 0755)
 		if err != nil {
 			return nil, err
 		}
@@ -110,8 +110,8 @@ func readFromInput(option *options) ([]string, error) {
 }
 
 func writeIntoOutput(option *options, data []string) error {
-	if option.outputFN != "" {
-		outStream, err := os.OpenFile(option.outputFN, os.O_CREATE|os.O_WRONLY, 0755)
+	if option.outputFileName != "" {
+		outStream, err := os.OpenFile(option.outputFileName, os.O_CREATE|os.O_WRONLY, 0755)
 		if err != nil {
 			return err
 		}
@@ -148,25 +148,25 @@ func checkUniqString(data []string, opt *options) []string {
 	checkMap := map[string]int{}
 	var returnData []string
 
-	checkIFSFlags := func(str string, opt *options) (newStr string) {
+	checkIFSkipNumCharss := func(str string, opt *options) (newStr string) {
 		switch {
-		case opt.fFlag > 0:
-			flagValue := opt.fFlag
+		case opt.SkipNumFields > 0:
+			flagValue := opt.SkipNumFields
 			for idx, char := range str {
 				if char == ' ' && flagValue > 0 {
 					newStr = str[idx+1:]
 					flagValue--
 				}
 			}
-		case opt.sFlag > 0:
-			flagValue := opt.sFlag
+		case opt.SkipNumChars > 0:
+			flagValue := opt.SkipNumChars
 			for idx := range str {
 				if flagValue > 0 {
 					newStr = str[idx+1:]
 					flagValue--
 				}
 			}
-		case opt.iFlag:
+		case opt.WithoutRegister:
 			if newStr == "" {
 				newStr = strings.ToLower(str)
 			} else {
@@ -180,7 +180,7 @@ func checkUniqString(data []string, opt *options) []string {
 	}
 
 	for _, str := range data {
-		str = checkIFSFlags(str, opt)
+		str = checkIFSkipNumCharss(str, opt)
 		if _, exist := checkMap[str]; exist {
 			checkMap[str]++
 		} else {
@@ -189,20 +189,20 @@ func checkUniqString(data []string, opt *options) []string {
 	}
 
 	for _, originStr := range data {
-		str := checkIFSFlags(originStr, opt)
+		str := checkIFSkipNumCharss(originStr, opt)
 		if _, exist := checkMap[str]; exist {
 			isRepeated := checkMap[str] > 1
 			switch {
-			case opt.cFlag:
+			case opt.PrintEntriesCount:
 				returnData = append(returnData, strconv.Itoa(checkMap[str])+" "+originStr)
 				delete(checkMap, str)
-			case opt.dFlag && isRepeated:
+			case opt.PrintRepeated && isRepeated:
 				returnData = append(returnData, originStr)
 				delete(checkMap, str)
-			case opt.uFlag && !isRepeated:
+			case opt.PrintUnRepeated && !isRepeated:
 				returnData = append(returnData, originStr)
 				delete(checkMap, str)
-			case !opt.dFlag && !opt.uFlag && !opt.cFlag:
+			case !opt.PrintRepeated && !opt.PrintUnRepeated && !opt.PrintEntriesCount:
 				returnData = append(returnData, originStr)
 				delete(checkMap, str)
 			}
